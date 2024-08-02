@@ -1,0 +1,6 @@
+@NetBackendCrud.API_HostAddress = http://localhost:5250
+
+GET {{NetBackendCrud.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NetBackendCrud.Application.DTOs.Puesto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,52 +8,14 @@ using System.Threading.Tasks;
 
 namespace NetBackendCrud.Infrastructure.Repositories
 {
-    public class PuestoRepository : IPuestoRepository
+    public class PuestoRepository : Repository<TBT_PUEST>, IPuestoRepository
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _appDbContext;
 
-        public PuestoRepository(AppDbContext context)
+        public PuestoRepository(AppDbContext appDbContext) : base(appDbContext)
         {
-            _context = context;
+            _appDbContext = appDbContext;
         }
 
-        public async Task Delete(TBT_PUEST model)
-        {
-            _context.TBT_PUEST.Remove(model);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<TBT_PUEST?> Get(int id)
-        {
-            return await _context.TBT_PUEST.FindAsync(id);
-        }
-
-        public async Task<List<TBT_PUEST>> GetAll()
-        {
-            return await _context.TBT_PUEST.ToListAsync();
-        }
-
-        public async Task<TBT_PUEST> Save(TBT_PUEST model)
-        {
-            model.FEC_USUAR_CREAC = DateTime.Now;
-            _context.TBT_PUEST.Add(model);
-            await _context.SaveChangesAsync();
-            return model;
-        }
-
-        public async Task<TBT_PUEST> State(TBT_PUEST model)
-        {
-            model.EST_REGIS = model.EST_REGIS ? false : true;
-            _context.TBT_PUEST.Update(model);
-            await _context.SaveChangesAsync();
-            return model;
-        }
-
-        public async Task Update(TBT_PUEST model)
-        {
-            model.FEC_USUAR_MODIF = DateTime.Now;
-            _context.TBT_PUEST.Update(model);
-            await _context.SaveChangesAsync();
-        }
     }
 }

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetBackendCrud.Application.Interfaces.Base;
 using NetBackendCrud.Infrastructure.Data;
-using NetBackendCrud.Infrastructure.Repositories;
+using NetBackendCrud.Infrastructure.Repositories.Base;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +11,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conn
     b => b.MigrationsAssembly("NetBackendCrud.Infrastructure")));
 
 // Dependency Injection
-builder.Services.AddScoped<IPuestoRepository, PuestoRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetBackendCrud.Domain.DTOs.Puesto
+namespace NetBackendCrud.Application.DTOs.Puesto
 {
-    public class PuestoCreateRequestDto
+    public class PuestoUpdateRequestDto
     {
         public required string NOM_PUEST { get; set; }
-        public required string COD_USUAR_CREAC { get; set; }
+        public required string COD_USUAR_MODIF { get; set; }
     }
 }

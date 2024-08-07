@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetBackendCrud.API.Handlers;
-using NetBackendCrud.Domain.DTOs.Puesto;
+using NetBackendCrud.Application.DTOs.Puesto;
 using System.Net;
 
 namespace NetBackendCrud.API.Controllers
@@ -11,18 +10,18 @@ namespace NetBackendCrud.API.Controllers
     [ApiController]
     public class PuestosController : ControllerBase
     {
-        private readonly IPuestoRepository _puestoRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ApiResponse _apiResponse;
-        public PuestosController(IPuestoRepository puestoRepository)
+        public PuestosController(IUnitOfWork unitOfWork)
         {
-            _puestoRepository = puestoRepository;
+            _unitOfWork = unitOfWork;
             _apiResponse = new ApiResponse();
         }
 
-        [HttpGet("FindById/{id}")]
-        public async Task<ActionResult<ApiResponse>> FindById([FromRoute] int id)
+        [HttpGet("BuscarPorId/{id}")]
+        public async Task<ActionResult<ApiResponse>> BuscarPorId([FromRoute] int id)
         {
-            var model = await _puestoRepository.Get(id);
+            var model = await _unitOfWork.puestoRepository.GetByIdAsync(id);
 
             if (model == null)
             {
@@ -39,43 +38,45 @@ namespace NetBackendCrud.API.Controllers
             return Ok(_apiResponse);
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<ApiResponse>> GetAll()
+        [HttpGet("Listar")]
+        public async Task<ActionResult<ApiResponse>> Listar()
         {
             _apiResponse.Success = true;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             _apiResponse.Message = string.Empty;
-            _apiResponse.Result = await _puestoRepository.GetAll();
+            _apiResponse.Result = await _unitOfWork.puestoRepository.GetAllAsync();
 
             return Ok(_apiResponse);
         }
 
-        [HttpPut("Update/{id}")]
-        public async Task<IActionResult> Update([FromRoute] int id, PuestoUpdateRequestDto model)
+        [HttpPut("Actualizar/{id}")]
+        public async Task<IActionResult> Actualizar([FromRoute] int id, PuestoUpdateRequestDto model)
         {
-            var modelOld = await _puestoRepository.Get(id);
+            var modelOld = await _unitOfWork.puestoRepository.GetByIdAsync(id);
 
             if (modelOld == null)
             {
                 _apiResponse.Success = false;
                 _apiResponse.StatusCode = HttpStatusCode.NotFound;
-                _apiResponse.Message = "Registro no encontrado";
+                _apiResponse.Message = "Registro no encontrado.";
                 return NotFound(_apiResponse);
             }
 
             modelOld.NOM_PUEST = model.NOM_PUEST;
+            modelOld.FEC_USUAR_MODIF = DateTime.Now;
             modelOld.COD_USUAR_MODIF = model.COD_USUAR_MODIF;
 
             try
             {
-                await _puestoRepository.Update(modelOld);
+                _unitOfWork.puestoRepository.Update(modelOld);
+                await _unitOfWork.puestoRepository.SaveChangesAsync();
             }
             catch (DbUpdateException ex)
             {
                 _apiResponse.Success = false;
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
                 _apiResponse.Message = ex.InnerException!.Message;
-                return NotFound(_apiResponse);
+                return BadRequest(_apiResponse);
             }
 
             return NoContent();
